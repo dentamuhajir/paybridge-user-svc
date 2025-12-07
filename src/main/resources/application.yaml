@@ -13,6 +13,7 @@ spring:
       hibernate:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
   data:
     redis:
       host: ${REDIS_HOST}
@@ -21,3 +22,25 @@ spring:
 
 server:
   port: 8080
+
+# ========================
+# JWT CONFIG
+# ========================
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  ttl-ms: ${JWT_TTL}
+
+# ========================
+# INTERNAL SERVICE TOKENS
+# ========================
+tokens:
+  internal-service: ${TOKEN_INTERNAL_SERVICE}
+  transaction-service: ${TOKEN_TRANSACTION_SERVICE}
+  notification-service: ${TOKEN_NOTIFICATION_SERVICE}
+
+# ========================
+# EXTERNAL SERVICE ENDPOINTS
+# ========================
+services:
+  transaction:
+    endpoint: ${TRANSACTION_SERVICE_ENDPOINT}

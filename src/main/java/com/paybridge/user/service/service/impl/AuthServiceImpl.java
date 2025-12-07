@@ -36,10 +36,8 @@ public class AuthServiceImpl implements AuthService {
     private WalletClient walletClient;
 
     public ApiResponse register(RegisterRequest request){
-        log.info("Start registration flow email={}", request.getEmail());
-
         if(userRepository.existsByEmail(request.getEmail())) {
-            log.info("Registration rejected: email already exists email={}", request.getEmail());
+            log.warn("Registration rejected: email already exists email={}", request.getEmail());
             return ApiResponse.error("Email has already registered", 409);
         }
 

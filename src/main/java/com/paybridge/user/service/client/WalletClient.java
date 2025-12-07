@@ -21,11 +21,11 @@ public class WalletClient {
     private final String transactionToken;
 
     public WalletClient(RestTemplate restTemplate,
-                        @Value("${TRANSACTION_SERVICE_ENDPOINT}/api/v1/wallet") String endpoint,
-                        @Value("${TOKEN_TRANSACTION_SERVICE}") String token) {
+                        @Value("${services.transaction.endpoint}") String transactionServiceEndpoint,
+                        @Value("${tokens.transaction-service}") String transactionToken) {
         this.restTemplate = restTemplate;
-        this.walletEndpoint = endpoint;
-        this.transactionToken = token;
+        this.walletEndpoint = transactionServiceEndpoint;
+        this.transactionToken = transactionToken;
         log.info("WalletClient initialized: URL={}, Token length={}", walletEndpoint, transactionToken.length());
     }
 
