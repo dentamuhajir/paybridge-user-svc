@@ -21,23 +21,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       TOKEN_TRANSACTION_SERVICE: ${TOKEN_TRANSACTION_SERVICE}
       TRANSACTION_SERVICE_ENDPOINT: ${TRANSACTION_SERVICE_ENDPOINT}
-    depends_on:
-      - postgres
-    networks:
-      - paybridge_network
-
-  postgres:
-    image: postgres:16
-    container_name: paybridge-user-db
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_TTL: ${JWT_TTL}
     networks:
       - paybridge_network
 
@@ -54,7 +39,6 @@ services:
       - paybridge_network
 
 volumes:
-  postgres_data:
   redis_data:
 
 networks:
