@@ -24,21 +24,6 @@ services:
     networks:
       - paybridge_network
 
-  redis:
-    image: redis:7
-    container_name: paybridge-user-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    command: [ "redis-server", "--requirepass", "${REDIS_PASSWORD}"]
-    volumes:
-      - redis_data:/data
-    networks:
-      - paybridge_network
-
-volumes:
-  redis_data:
-
 networks:
   paybridge_network:
     external: true
