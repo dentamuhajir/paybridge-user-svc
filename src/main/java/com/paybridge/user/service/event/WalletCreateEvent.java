@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WalletCreateEvent {
-    private String user;
+    private String userId;
     private String Currency;
 }
