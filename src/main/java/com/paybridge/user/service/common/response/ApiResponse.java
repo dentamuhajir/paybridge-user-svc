@@ -27,6 +27,10 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> error(String message, int status) {
         return new ApiResponse<>(false, message, null, status);
     }
+
+    public static <T> ApiResponse<T> internalServerError(String message) {
+        return new ApiResponse<>(false, message, null, 500);
+    }
 }
 
 

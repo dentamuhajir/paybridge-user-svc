@@ -25,4 +25,13 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(Exception.class) // Catch all unhandled exceptions
+    public ResponseEntity<ApiResponse> handleGlobalException(Exception ex) {
+
+        ApiResponse response = ApiResponse.internalServerError("An unexpected error occurred: " + ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }
