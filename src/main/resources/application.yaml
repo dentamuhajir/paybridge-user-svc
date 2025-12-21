@@ -47,3 +47,14 @@ tokens:
 services:
   transaction:
     endpoint: ${TRANSACTION_SERVICE_ENDPOINT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+
