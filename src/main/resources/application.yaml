@@ -16,6 +16,8 @@ spring:
 
   kafka:
     bootstrap-servers: paybridge-kafka:9092
+    admin:
+      enabled: true
 
   data:
     redis:
