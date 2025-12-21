@@ -1,0 +1,34 @@
+# Create
+docker exec -it paybridge-kafka kafka-topics `
+  --bootstrap-server paybridge-kafka:9092 `
+  --create `
+  --topic wallet `
+  --partitions 3 `
+  --replication-factor 1
+
+
+# Verify
+docker exec -it paybridge-kafka kafka-topics `
+  --bootstrap-server paybridge-kafka:9092 `
+  --list
+
+ => wallet
+
+# Run consumer
+docker exec -it paybridge-kafka kafka-console-consumer `
+  --bootstrap-server paybridge-kafka:9092 `
+  --topic wallet `
+  --from-beginning
+=> nothing (wait for publisher kafka)
+
+# Test
+curl -X POST http://localhost:8080/internal/kafka-test/wallet
+=> sent
+
+docker exec -it paybridge-kafka kafka-console-consumer `
+  --bootstrap-server paybridge-kafka:9092 `
+  --topic wallet
+=> {"userId":"user-123","currency":"IDR"}
+
+
+

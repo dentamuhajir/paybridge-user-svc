@@ -21,7 +21,7 @@ public class WalletEventPublisher {
             String payload = objectMapper.writeValueAsString(event);
 
             kafkaTemplate.send(
-                    EventTopic.WALLET_CREATE,
+                    EventTopic.WALLET,
                     event.getUserId(), // key → ensures ordering per user
                     payload
             );

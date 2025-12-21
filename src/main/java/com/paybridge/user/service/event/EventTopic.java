@@ -4,5 +4,5 @@ public final class EventTopic {
 
     private EventTopic() {}
 
-    public static final String WALLET_CREATE = "wallet.create";
+    public static final String WALLET = "wallet";
 }
