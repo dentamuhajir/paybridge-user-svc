@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     public ApiResponse register(RegisterRequest request){
         if(userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration rejected: email already exists email={}", request.getEmail());
-            return ApiResponse.error("Email has already registered", 409);
+            throw new RuntimeException("Registration rejected: email already exists email=" + request.getEmail());
         }
 
         Role userRole = roleRepository.findByName("USER");
@@ -71,6 +71,7 @@ public class AuthServiceImpl implements AuthService {
         return ApiResponse.success("Email registered successfully",null);
     }
 
+    // Use HTTP request
     private void createWalletForUser(String userId) {
         log.info("Initiating wallet creation user_id={}", userId);
 
