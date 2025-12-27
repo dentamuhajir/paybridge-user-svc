@@ -6,8 +6,13 @@ import com.paybridge.user.service.event.WalletCreateEvent;
 import com.paybridge.user.service.exception.KafkaPublishException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
+import org.slf4j.MDC;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -20,16 +25,29 @@ public class WalletEventPublisher {
         try {
             String payload = objectMapper.writeValueAsString(event);
 
-            kafkaTemplate.send(
+            String traceId = MDC.get("trace_id"); // MUST exist
+
+            ProducerRecord<String, String> record = new ProducerRecord<>(
                     EventTopic.WALLET,
-                    event.getUserId(), // key → ensures ordering per user
+                    event.getUserId(),
                     payload
             );
+
+            record.headers().add(
+                    new RecordHeader("trace-id", traceId.getBytes())
+            );
+
+            kafkaTemplate.send(record);
 
             log.info("Published WalletCreateEvent userId={}", event.getUserId());
 
         } catch (Exception e) {
-            log.error("Kafka publish failed userId={}", event.getUserId(), e);
+            log.error(
+                    "Kafka publish failed userId={} traceId={}",
+                    event.getUserId(),
+                    MDC.get("trace_id"),
+                    e
+            );
             throw new KafkaPublishException("Failed to publish wallet event", e);
         }
     }
