@@ -33,9 +33,11 @@ public class WalletEventPublisher {
                     payload
             );
 
-            record.headers().add(
-                    new RecordHeader("trace-id", traceId.getBytes())
-            );
+            if (traceId != null) {
+                record.headers().add(
+                        new RecordHeader("trace-id", traceId.getBytes(StandardCharsets.UTF_8))
+                );
+            }
 
             kafkaTemplate.send(record);
 
