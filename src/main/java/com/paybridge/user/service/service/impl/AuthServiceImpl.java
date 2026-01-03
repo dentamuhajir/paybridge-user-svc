@@ -94,6 +94,7 @@ public class AuthServiceImpl implements AuthService {
                 userDetailsService.loadUserByUsername(request.getEmail());
 
         if (!passwordEncoder.matches(request.getPassword(), userDetails.getPassword())) {
+            log.info("Invalid credentials of username={}", userDetails.getUsername());
             throw new RuntimeException("Invalid credentials");
         }
 
