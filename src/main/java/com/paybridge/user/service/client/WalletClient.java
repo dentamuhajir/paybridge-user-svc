@@ -1,11 +1,13 @@
 package com.paybridge.user.service.client;
 
 import com.paybridge.user.service.dto.WalletCreateRequest;  // Assume this DTO exists
+import com.paybridge.user.service.dto.WalletGetResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -44,5 +46,23 @@ public class WalletClient {
             log.error("Failed to create wallet for user {}: {}", request.getUserId(), e.getMessage());
             throw new RuntimeException("Wallet creation failed", e);  // Or handle gracefully
         }
+    }
+
+    public WalletGetResponse getWallet(String userId) {
+        String url = walletEndpoint + "/internal/wallet/" + userId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + transactionToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String traceId = MDC.get("trace_id");
+        if (traceId != null) headers.set("X-Trace-Id", traceId);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        return restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                WalletGetResponse.class
+        ).getBody();
     }
 }
