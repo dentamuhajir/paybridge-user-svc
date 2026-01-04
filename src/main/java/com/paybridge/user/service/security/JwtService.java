@@ -27,8 +27,14 @@ public class JwtService {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtTtlMs);
 
+        String userId = null;
+        if (userDetails instanceof AppUserDetails appUserDetails) {
+            userId = appUserDetails.getId();
+        }
+
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("user_id", userId)
                 .claim("roles", userDetails.getAuthorities())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
@@ -44,6 +50,16 @@ public class JwtService {
                 .getBody()
                 .getSubject();
     }
+
+    public String extractUserId(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("user_id", String.class);
+    }
+
 
     public boolean validate(String token, UserDetails userDetails) {
         String username = extractUsername(token);
