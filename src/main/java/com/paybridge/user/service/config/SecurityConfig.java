@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("internal/kafka-test/**").permitAll()
                         .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/wallet/**").authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form.disable())
