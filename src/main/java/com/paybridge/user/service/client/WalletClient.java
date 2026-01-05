@@ -49,7 +49,7 @@ public class WalletClient {
     }
 
     public WalletGetResponse getWallet(String userId) {
-        String url = walletEndpoint + "/internal/wallet/" + userId;
+        String url = walletEndpoint + "/api/v1/wallet/" + userId;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + transactionToken);

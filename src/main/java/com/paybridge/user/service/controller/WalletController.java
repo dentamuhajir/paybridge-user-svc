@@ -1,10 +1,12 @@
 package com.paybridge.user.service.controller;
 
 
+import com.paybridge.user.service.common.response.ApiResponse;
 import com.paybridge.user.service.security.AppUserDetails;
 import com.paybridge.user.service.service.WalletService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +17,8 @@ import java.sql.SQLOutput;
 
 @RestController
 @RequestMapping("api/v1/wallet")
-@RequiredArgsConstructor
 public class WalletController {
+    @Autowired
     private WalletService walletService;
     @GetMapping
     public ResponseEntity<?> getWallet(Authentication authentication) {
@@ -25,9 +27,7 @@ public class WalletController {
 
         String userId = userDetails.getId();
 
-        System.out.println("User ID: " + userId);
-
-        walletService.getWallet(userId);
+        ApiResponse response = walletService.getWallet(userId);
         return ResponseEntity.ok("ok");
     }
 
