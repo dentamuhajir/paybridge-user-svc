@@ -28,7 +28,7 @@ public class WalletController {
         String userId = userDetails.getId();
 
         ApiResponse response = walletService.getWallet(userId);
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(response);
     }
 
 }

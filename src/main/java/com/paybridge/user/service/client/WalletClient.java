@@ -1,14 +1,13 @@
 package com.paybridge.user.service.client;
 
-import com.paybridge.user.service.dto.WalletCreateRequest;  // Assume this DTO exists
+import com.paybridge.user.service.common.response.ApiResponse;
+import com.paybridge.user.service.dto.WalletCreateRequest;
 import com.paybridge.user.service.dto.WalletGetResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -58,11 +57,30 @@ public class WalletClient {
         if (traceId != null) headers.set("X-Trace-Id", traceId);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        return restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                WalletGetResponse.class
-        ).getBody();
+        ResponseEntity<ApiResponse<WalletGetResponse>> response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<ApiResponse<WalletGetResponse>>() {}
+                );
+
+        ApiResponse<WalletGetResponse> body = response.getBody();
+
+        if (body == null) {
+            throw new IllegalStateException("Empty response from transaction service");
+        }
+
+        if (!body.isSuccess()) {
+            throw new IllegalStateException(
+                    "Wallet service error (" + body.getStatus() + "): " + body.getMessage()
+            );
+        }
+
+        if (body.getData() == null) {
+            throw new IllegalStateException("Wallet data is null");
+        }
+
+        return body.getData();
     }
 }
