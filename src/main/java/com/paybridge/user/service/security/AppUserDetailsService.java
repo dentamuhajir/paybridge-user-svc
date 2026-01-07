@@ -22,7 +22,7 @@ public class AppUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         var authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole().getName())
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().getName())
         );
 
         return new AppUserDetails(
