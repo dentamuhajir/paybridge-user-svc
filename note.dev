@@ -1,0 +1,8 @@
+How to debug kafka consumer
+
+docker exec -it paybridge-kafka kafka-console-consumer \
+  --bootstrap-server paybridge-kafka:9092 \
+  --topic user.created \
+  --from-beginning \
+  --property print.key=true \
+  --property key.separator=" | "

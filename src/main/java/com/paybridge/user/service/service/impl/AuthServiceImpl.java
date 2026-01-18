@@ -8,7 +8,9 @@ import com.paybridge.user.service.dto.RegisterRequest;
 import com.paybridge.user.service.dto.WalletCreateRequest;
 import com.paybridge.user.service.entity.Role;
 import com.paybridge.user.service.entity.User;
+import com.paybridge.user.service.event.UserCreatedEvent;
 import com.paybridge.user.service.event.WalletCreateEvent;
+import com.paybridge.user.service.producer.UserCreatedEventPublisher;
 import com.paybridge.user.service.producer.WalletEventPublisher;
 import com.paybridge.user.service.repository.RoleRepository;
 import com.paybridge.user.service.repository.UserRepository;
@@ -37,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private WalletClient walletClient;
     @Autowired
-    private WalletEventPublisher walletEventPublisher;
+    private UserCreatedEventPublisher userCreatedEventPublisher;
 
     public ApiResponse register(RegisterRequest request){
         if(userRepository.existsByEmail(request.getEmail())) {
@@ -58,12 +60,13 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         log.info("User saved with id={} email={}", user.getId(), user.getEmail());
 
-        // Resilient wallet creation (post-tx, fire-and-forget)
-        walletEventPublisher.publish(
-                new WalletCreateEvent(user.getId().toString(), "IDR")
+        userCreatedEventPublisher.publish(
+                UserCreatedEvent.builder()
+                        .event("USER_CREATED")
+                        .userId(user.getId().toString())
+                        .occurredAt(java.time.Instant.now().toString())
+                        .build()
         );
-
-        //createWalletForUser(user.getId().toString());
 
         log.info("Registration success email={} user_id={}",
                 request.getEmail(), user.getId());
