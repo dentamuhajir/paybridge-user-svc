@@ -28,8 +28,9 @@ public class LoggingFilter implements Filter {
         }
 
         // Put MDC defaults
+        MDC.put("service", "paybridge-user-service");
         MDC.put("trace_id", traceId);
-        MDC.put("span_id", UUID.randomUUID().toString());
+        MDC.put("span_id", UUID.randomUUID().toString().replace("-", ""));
         MDC.put("method", request.getMethod());
         MDC.put("endpoint", request.getRequestURI());
 
