@@ -21,16 +21,8 @@ public class LoggingFilter implements Filter {
 
         long start = System.currentTimeMillis();
 
-        // Generate or read trace_id
-        String traceId = request.getHeader("X-Trace-Id");
-        if (traceId == null || traceId.isEmpty()) {
-            traceId = UUID.randomUUID().toString();
-        }
-
         // Put MDC defaults
         MDC.put("service", "paybridge-user-service");
-        MDC.put("trace_id", traceId);
-        MDC.put("span_id", UUID.randomUUID().toString().replace("-", ""));
         MDC.put("method", request.getMethod());
         MDC.put("endpoint", request.getRequestURI());
 
