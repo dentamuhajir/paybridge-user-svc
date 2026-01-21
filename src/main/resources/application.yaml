@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: paybridge-user-service
   main:
     lazy-initialization: false
   datasource:
@@ -26,33 +28,19 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
-
 server:
   port: 8080
 
-# ========================
-# JWT CONFIG
-# ========================
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  ttl-ms: ${JWT_TTL}
-
-# ========================
-# INTERNAL SERVICE TOKENS
-# ========================
-tokens:
-  internal-service: ${TOKEN_INTERNAL_SERVICE}
-  transaction-service: ${TOKEN_TRANSACTION_SERVICE}
-  notification-service: ${TOKEN_NOTIFICATION_SERVICE}
-
-# ========================
-# EXTERNAL SERVICE ENDPOINTS
-# ========================
-services:
-  transaction:
-    endpoint: ${TRANSACTION_SERVICE_ENDPOINT}
-
 management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+  otlp:
+    tracing:
+      endpoint: http://paybridge-jaeger:4318/v1/traces
+
   endpoints:
     web:
       exposure:
@@ -61,4 +49,15 @@ management:
     health:
       show-details: always
 
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  ttl-ms: ${JWT_TTL}
 
+tokens:
+  internal-service: ${TOKEN_INTERNAL_SERVICE}
+  transaction-service: ${TOKEN_TRANSACTION_SERVICE}
+  notification-service: ${TOKEN_NOTIFICATION_SERVICE}
+
+services:
+  transaction:
+    endpoint: ${TRANSACTION_SERVICE_ENDPOINT}
