@@ -1,22 +1,27 @@
 package com.paybridge.user.service.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paybridge.user.service.client.WalletClient;
 import com.paybridge.user.service.common.response.ApiResponse;
 import com.paybridge.user.service.dto.AuthResponse;
 import com.paybridge.user.service.dto.LoginRequest;
 import com.paybridge.user.service.dto.RegisterRequest;
 import com.paybridge.user.service.dto.WalletCreateRequest;
+import com.paybridge.user.service.entity.OutboxEvent;
 import com.paybridge.user.service.entity.Role;
 import com.paybridge.user.service.entity.User;
+import com.paybridge.user.service.event.EventTopic;
 import com.paybridge.user.service.event.UserCreatedEvent;
 import com.paybridge.user.service.event.WalletCreateEvent;
 import com.paybridge.user.service.producer.UserCreatedEventPublisher;
 import com.paybridge.user.service.producer.WalletEventPublisher;
+import com.paybridge.user.service.repository.OutboxEventRepository;
 import com.paybridge.user.service.repository.RoleRepository;
 import com.paybridge.user.service.repository.UserRepository;
 import com.paybridge.user.service.security.AppUserDetailsService;
 import com.paybridge.user.service.security.JwtService;
 import com.paybridge.user.service.service.AuthService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,7 +45,12 @@ public class AuthServiceImpl implements AuthService {
     private WalletClient walletClient;
     @Autowired
     private UserCreatedEventPublisher userCreatedEventPublisher;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private OutboxEventRepository outboxEventRepository;
 
+    @Transactional
     public ApiResponse register(RegisterRequest request){
         if(userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration rejected: email already exists email={}", request.getEmail());
@@ -60,13 +70,34 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         log.info("User saved with id={} email={}", user.getId(), user.getEmail());
 
-        userCreatedEventPublisher.publish(
-                UserCreatedEvent.builder()
-                        .event("USER_CREATED")
-                        .userId(user.getId().toString())
-                        .occurredAt(java.time.Instant.now().toString())
-                        .build()
-        );
+//        userCreatedEventPublisher.publish(
+//                UserCreatedEvent.builder()
+//                        .event("USER_CREATED")
+//                        .userId(user.getId().toString())
+//                        .occurredAt(java.time.Instant.now().toString())
+//                        .build()
+//        );
+
+        try {
+            UserCreatedEvent event = UserCreatedEvent.builder()
+                    .event("USER_CREATED")
+                    .userId(user.getId().toString())
+                    .occurredAt(java.time.Instant.now().toString())
+                    .build();
+
+            OutboxEvent outbox = new OutboxEvent();
+            outbox.setTopic(EventTopic.USER_CREATED);
+            outbox.setAggregateId(user.getId().toString());
+            outbox.setPayload(objectMapper.writeValueAsString(event));
+            outboxEventRepository.save(outbox);
+
+            log.info("Outbox event saved userId={}", user.getId());
+
+        } catch (Exception e) {
+            // Ini akan trigger rollback user juga karena @Transactional
+            log.error("Failed to save outbox event userId={}", user.getId(), e);
+            throw new RuntimeException("Registration failed, please try again");
+        }
 
         log.info("Registration success email={} user_id={}",
                 request.getEmail(), user.getId());
