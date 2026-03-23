@@ -1,42 +1,29 @@
-version: "3.9"
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: fintech-platform
+    container_name: paybridge-user-svc
     ports:
       - "8080:8080"
     volumes:
-      - .:/app           # mount your source code for live reload
-      - ~/.m2:/root/.m2  # cache Maven dependencies
+      - .:/app
+      - ~/.m2:/root/.m2
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fintechdb
-      SPRING_DATASOURCE_USERNAME: dentamuhajir
-      SPRING_DATASOURCE_PASSWORD: 5MbVqyTEZ42wFS4as9iwZ7
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
-    depends_on:
-      - postgres
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      TOKEN_TRANSACTION_SERVICE: ${TOKEN_TRANSACTION_SERVICE}
+      TRANSACTION_SERVICE_ENDPOINT: ${TRANSACTION_SERVICE_ENDPOINT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_TTL: ${JWT_TTL}
     networks:
-      - fintech_network
-
-  postgres:
-    image: postgres:16
-    container_name: fintech_postgres
-    restart: always
-    environment:
-      POSTGRES_USER: dentamuhajir
-      POSTGRES_PASSWORD: 5MbVqyTEZ42wFS4as9iwZ7
-      POSTGRES_DB: fintechdb
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - fintech_network
-
-volumes:
-  postgres_data:
+      - paybridge_network
 
 networks:
-  fintech_network:
+  paybridge_network:
+    external: true
