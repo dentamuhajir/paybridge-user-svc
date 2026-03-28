@@ -26,6 +26,9 @@ public class OutboxEvent {
     @Column(nullable = false, name = "aggregate_id")
     private String aggregateId;
 
+    @Column(nullable = false)
+    private String aggregatetype;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String payload;
 
@@ -50,8 +53,9 @@ public class OutboxEvent {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        status = "PENDING";  // ← Set default disini, dijamin selalu ter-set
+        status = "PENDING";
         retryCount = 0;
         maxRetry = 5;
+        aggregatetype = "user";
     }
 }
