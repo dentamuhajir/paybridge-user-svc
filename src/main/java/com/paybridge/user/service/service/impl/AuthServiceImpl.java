@@ -2,6 +2,7 @@ package com.paybridge.user.service.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paybridge.user.service.client.WalletClient;
+import com.paybridge.user.service.client.notification.dto.RegistrationEmailRequest;
 import com.paybridge.user.service.common.response.ApiResponse;
 import com.paybridge.user.service.dto.AuthResponse;
 import com.paybridge.user.service.dto.LoginRequest;
@@ -21,6 +22,7 @@ import com.paybridge.user.service.repository.UserRepository;
 import com.paybridge.user.service.security.AppUserDetailsService;
 import com.paybridge.user.service.security.JwtService;
 import com.paybridge.user.service.service.AuthService;
+import com.paybridge.user.service.service.NotificationClient;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,8 @@ public class AuthServiceImpl implements AuthService {
     private ObjectMapper objectMapper;
     @Autowired
     private OutboxEventRepository outboxEventRepository;
+    @Autowired
+    private NotificationClient notificationClient;
 
     @Transactional
     public ApiResponse register(RegisterRequest request){
@@ -98,6 +102,24 @@ public class AuthServiceImpl implements AuthService {
             log.error("Failed to save outbox event userId={}", user.getId(), e);
             throw new RuntimeException("Registration failed, please try again");
         }
+
+        try {
+            RegistrationEmailRequest emailRequest = RegistrationEmailRequest.builder()
+                    .to(user.getEmail())
+                    .name(user.getFullName())
+                    .verificationLink("https://paybridge.com/verify?token=" + user.getId())
+                    .build();
+
+            notificationClient.sendRegistrationEmail(emailRequest);
+            log.info("Registration email sent userId={} email={}", user.getId(), user.getEmail());
+
+        } catch (Exception e) {
+            // Email failure should NOT fail the whole registration.
+            // User is already saved — just log and move on.
+            log.error("Failed to send registration email userId={} email={}", user.getId(), user.getEmail(), e);
+        }
+
+        log.info("Registration success email={} user_id={}", request.getEmail(), user.getId());
 
         log.info("Registration success email={} user_id={}",
                 request.getEmail(), user.getId());

@@ -64,3 +64,5 @@ tokens:
 services:
   transaction:
     endpoint: ${TRANSACTION_SERVICE_ENDPOINT}
+  notification:
+    endpoint: ${NOTIFICATION_SERVICE_ENDPOINT}
